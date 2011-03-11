@@ -125,9 +125,7 @@ void SlugsMAV::receiveMessage(LinkInterface* link, mavlink_message_t message)
                 mavlink_msg_rc_channels_raw_decode(&message, &mlChannels);
                 break;
 
-            case MAVLINK_MSG_ID_RADIO_CALIBRATION:
 
-                break;
 
             switch (mlAction.actionId)
             {
