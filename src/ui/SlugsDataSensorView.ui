@@ -1426,7 +1426,7 @@
              <item>
               <widget class="QGroupBox" name="gpsData_groupBox_2">
                <property name="title">
-                <string>GPS Data</string>
+                <string>Pilot Console</string>
                </property>
                <layout class="QGridLayout" name="gridLayout_23">
                 <item row="0" column="0">
@@ -1486,20 +1486,6 @@
                       </property>
                       <property name="text">
                        <string>Elevator</string>
-                      </property>
-                     </widget>
-                    </item>
-                    <item>
-                     <widget class="QLabel" name="label_81">
-                      <property name="font">
-                       <font>
-                        <pointsize>10</pointsize>
-                        <weight>75</weight>
-                        <bold>true</bold>
-                       </font>
-                      </property>
-                      <property name="text">
-                       <string>SOG</string>
                       </property>
                      </widget>
                     </item>
@@ -1572,27 +1558,6 @@
                     </item>
                     <item>
                      <widget class="QLineEdit" name="tbRCElevator">
-                      <property name="minimumSize">
-                       <size>
-                        <width>60</width>
-                        <height>18</height>
-                       </size>
-                      </property>
-                      <property name="maximumSize">
-                       <size>
-                        <width>80</width>
-                        <height>18</height>
-                       </size>
-                      </property>
-                      <property name="font">
-                       <font>
-                        <pointsize>10</pointsize>
-                       </font>
-                      </property>
-                     </widget>
-                    </item>
-                    <item>
-                     <widget class="QLineEdit" name="m_GpsSog_2">
                       <property name="minimumSize">
                        <size>
                         <width>60</width>

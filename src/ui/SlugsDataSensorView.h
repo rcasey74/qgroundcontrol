@@ -183,14 +183,14 @@ public slots:
         * @brief Updates the gps Date Time widget - 179
    */
     void slugsGPSDateTimeChanged(int systemId,
-                                 const mavlink_gps_date_time_t& gpsDateTime);
+                                 const mavlink_gps_date_time_t&);
 
 
     void slugsRCRawChannels(int systemId,
-                            const mavlink_rc_channels_raw_t& gpsDateTime);
+                            const mavlink_rc_channels_raw_t&);
 
     void slugsRCServo(int systemId,
-                            const mavlink_servo_output_raw_t& gpsDateTime);
+                            const mavlink_servo_output_raw_t&);
 
 
 #endif // MAVLINK_ENABLED_SLUGS
@@ -200,12 +200,6 @@ protected:
 
 private:
     Ui::SlugsDataSensorView *ui;
-
-
-
-
-
-
 
 };
 

@@ -50,11 +50,8 @@ void SlugsDataSensorView::addUAS(UASInterface* uas)
 
     connect(slugsMav, SIGNAL(slugsNavegation(int,const mavlink_slugs_navigation_t&)),this,SLOT(slugsNavegationChanged(int,const mavlink_slugs_navigation_t&)));
     connect(slugsMav, SIGNAL(slugsDataLog(int,const mavlink_data_log_t&)), this, SLOT(slugsDataLogChanged(int,const mavlink_data_log_t&)));
-//    connect(slugsMav, SIGNAL(slugsPWM(int,const mavlink_pwm_commands_t&)),this,SLOT(slugsPWMChanged(int,const mavlink_pwm_commands_t&)));
-//    connect(slugsMav, SIGNAL(slugsFilteredData(int,const mavlink_filtered_data_t&)),this,SLOT(slugsFilteredDataChanged(int,const mavlink_filtered_data_t&)));
     connect(slugsMav, SIGNAL(slugsGPSDateTime(int,const mavlink_gps_date_time_t&)),this,SLOT(slugsGPSDateTimeChanged(int,const mavlink_gps_date_time_t&)));
     connect(slugsMav,SIGNAL(slugsAirData(int, const mavlink_air_data_t&)),this,SLOT(slugsAirDataChanged(int, const mavlink_air_data_t&)));
-
 
     connect(slugsMav, SIGNAL(slugsChannels(int, const mavlink_rc_channels_raw_t&)), this, SLOT(slugsRCRawChannels(int, const mavlink_rc_channels_raw_t&)));
     connect(slugsMav, SIGNAL(slugsServo(int, const mavlink_servo_output_raw_t&)), this, SLOT(slugsRCServo(int,const mavlink_servo_output_raw_t&)));
@@ -244,21 +241,6 @@ void SlugsDataSensorView::slugsDataLogChanged(int systemId,
   ui->m_logFl5->setText(QString::number(dataLog.fl_5));
   ui->m_logFl6->setText(QString::number(dataLog.fl_6));
 }
-
-//void SlugsDataSensorView::slugsPWMChanged(int systemId,
-//                                          const mavlink_servo_output_raw_t& pwmCommands){
-//       Q_UNUSED(systemId);
-//  ui->m_pwmThro->setText(QString::number(pwmCommands.servo1_raw));//.dt_c));
-//  ui->m_pwmAile->setText(QString::number(pwmCommands.servo2_raw));//dla_c));
-//  ui->m_pwmElev->setText(QString::number(pwmCommands.servo4_raw));//dle_c));
-//  ui->m_pwmRudd->setText(QString::number(pwmCommands.servo3_raw));//dr_c));
-
-//  ui->m_pwmThroTrim->setText(QString::number(pwmCommands.servo5_raw));//dre_c));
-//  ui->m_pwmAileTrim->setText(QString::number(pwmCommands.servo6_raw));//dlf_c));
-//  ui->m_pwmElevTrim->setText(QString::number(pwmCommands.servo8_raw));//drf_c));
-//  ui->m_pwmRuddTrim->setText(QString::number(pwmCommands.servo7_raw));//aux1));
-
-//}
 
 void SlugsDataSensorView::slugsFilteredDataChanged(int systemId,
                                                    const mavlink_scaled_imu_t& filteredData){

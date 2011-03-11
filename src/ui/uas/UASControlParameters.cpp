@@ -115,8 +115,7 @@ void UASControlParameters::speedChanged(UASInterface* uas, double vx, double vy,
 {
     Q_UNUSED(time);
     Q_UNUSED(uas);
-    this->speed = sqrt(pow(vx, 2.0) + pow(vy, 2.0) + pow(vz, 2.0));
-    //ui->sbAirSpeed->setValue(speed);
+    this->speed = sqrt(pow(vx, 2.0) + pow(vy, 2.0) + pow(vz, 2.0));    
 }
 
 void UASControlParameters::updateAttitude(UASInterface *uas, double roll, double pitch, double yaw, quint64 time)
@@ -125,7 +124,6 @@ void UASControlParameters::updateAttitude(UASInterface *uas, double roll, double
     Q_UNUSED(pitch);
     Q_UNUSED(yaw);
     Q_UNUSED(time);
-    //ui->sbTurnRate->setValue(roll);
     this->roll = roll;
 }
 

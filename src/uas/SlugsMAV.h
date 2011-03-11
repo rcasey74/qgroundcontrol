@@ -116,7 +116,6 @@ protected:
     mavlink_servo_output_raw_t mlServo;
     mavlink_rc_channels_raw_t mlChannels;
 
-
    // Standart messages MAVLINK used by SLUGS
 private:
 
