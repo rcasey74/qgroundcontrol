@@ -361,18 +361,7 @@ void UAS::receiveMessage(LinkInterface* link, mavlink_message_t message)
                 }
 
                 // COMMUNICATIONS DROP RATE
-                emit dropRateChanged(this->getUASID(), state.packet_drop/1000.0f);
-
-
-                //add for development
-                //emit remoteControlRSSIChanged(state.packet_drop/1000.0f);
-
-                //float en = state.packet_drop/1000.0f;
-                //emit remoteControlChannelRawChanged(0, en);//MAVLINK_MSG_ID_RC_CHANNELS_RAW
-                //emit remoteControlChannelScaledChanged(0, en/100.0f);//MAVLINK_MSG_ID_RC_CHANNELS_SCALED
-
-
-                //qDebug() << __FILE__ << __LINE__ << "RCV LOSS: " << state.packet_drop;
+                emit dropRateChanged(this->getUASID(), state.packet_drop/1000.0f);                
 
                 // AUDIO
                 if (modechanged && statechanged)
@@ -772,6 +761,10 @@ void UAS::receiveMessage(LinkInterface* link, mavlink_message_t message)
                 emit remoteControlChannelRawChanged(5, channels.chan6_raw);
                 emit remoteControlChannelRawChanged(6, channels.chan7_raw);
                 emit remoteControlChannelRawChanged(7, channels.chan8_raw);
+
+                #ifdef MAVLINK_ENABLED_SLUGS
+                    emit thrustChanged(this, (channels.chan1_raw*100.0)/2000);
+                #endif
             }
             break;
         case MAVLINK_MSG_ID_RC_CHANNELS_SCALED:

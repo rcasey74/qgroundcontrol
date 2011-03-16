@@ -9,6 +9,8 @@
 #include <qmath.h>
 #include <QPainter>
 #include "UASManager.h"
+#include "SlugsMAV.h"
+#include "MG.h"
 
 namespace Ui {
     class SlugsPadCameraControl;
@@ -37,17 +39,20 @@ public:
 
 public slots:
     void getDeltaPositionPad(int x, int y);
-    QPointF ObtenerMarcacionDistanciaPixel(double lon1, double lat1, double lon2, double lat2);
+    QPointF getDistancePixel(double lon1, double lat1, double lon2, double lat2);
     void activeUasSet(UASInterface *uas);
+    void zoomIn();
+    void zoomOut();
+    void moveHome();
 
-signals:
-    void changeMotionCamera(MotionCamera);
+private slots:
+    void sendMessageCamera(uint8_t moveHome, uint8_t pan, uint8_t tilt, uint8_t zoom);
 
 protected:
     void mousePressEvent(QMouseEvent* event);
     void mouseReleaseEvent(QMouseEvent* event);
     void mouseMoveEvent(QMouseEvent* event);
-    void keyPressEvent(QKeyEvent *event);
+    //void keyPressEvent(QKeyEvent *event);
     //void paintEvent(QPaintEvent *pe);
 
 

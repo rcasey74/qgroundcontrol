@@ -189,7 +189,7 @@ void QGCRemoteControlView::redraw()
             //int vv = normalized.at(i)*100.0f;
             //progressBars.at(i)->setValue(vv);
             int vv = raw.at(i)*1.0f;
-            progressBars.at(i)->setValue(vv);
+            progressBars.at(i)->setValue((int)((vv*100)/2000));
         }
         // Update RSSI
         if(rssi>0)

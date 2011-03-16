@@ -166,6 +166,7 @@ void UASControlParameters::setCommands()
         tempCmds.rCommand = ui->sbTurnRate->value();
 
         mavlink_msg_mid_lvl_cmds_encode(MG::SYSTEM::ID, MG::SYSTEM::COMPID, &msg, &this->tempCmds);
+
         myUas->sendMessage(msg);
     }
 }

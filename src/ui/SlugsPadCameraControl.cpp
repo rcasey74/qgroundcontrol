@@ -10,6 +10,10 @@ SlugsPadCameraControl::SlugsPadCameraControl(QWidget *parent) :
     x1= 0;
     y1 = 0;
     motion = NONE;
+
+    connect(ui->btZoomIn, SIGNAL(clicked()), this, SLOT(zoomIn()));
+    connect(ui->btZoomOut, SIGNAL(clicked()), this, SLOT(zoomOut()));
+    connect(ui->btHome, SIGNAL(clicked()), this, SLOT(zoomOut()));
 }
 
 SlugsPadCameraControl::~SlugsPadCameraControl()
@@ -59,7 +63,7 @@ void SlugsPadCameraControl::mouseReleaseEvent(QMouseEvent *event)
 
 void SlugsPadCameraControl::getDeltaPositionPad(int x2, int y2)
 {
-    QPointF localMeasures = ObtenerMarcacionDistanciaPixel(y1,x1,y2,x2);
+    QPointF localMeasures = getDistancePixel(y1,x1,y2,x2);
 
     if(localMeasures.y()>10)
     {
@@ -123,18 +127,52 @@ void SlugsPadCameraControl::getDeltaPositionPad(int x2, int y2)
             dir = "LEFT UP";
         }
 
-        emit changeMotionCamera(motion);
+        sendMessageCamera(0, movePad.x(), movePad.y(), 0);
 
         ui->lbPixel->setText(QString::number(localMeasures.y()));
         ui->lbDirection->setText(dir);
 
-        //qDebug()<<dir;
         update();
     }
 }
 
-QPointF SlugsPadCameraControl::ObtenerMarcacionDistanciaPixel(double lon1, double lat1,
-                                                              double lon2, double lat2)
+void SlugsPadCameraControl::sendMessageCamera(uint8_t moveHome, uint8_t pan, uint8_t tilt, uint8_t zoom)
+{
+    if(activeUAS)
+    {
+        mavlink_message_t msg;
+        mavlink_slugs_camera_order_t camera;
+
+        camera.moveHome = moveHome;
+        camera.pan = pan;
+        camera.tilt = tilt;
+        camera.zoom = zoom;
+        camera.target = activeUAS->getUASID();
+
+        mavlink_msg_slugs_camera_order_encode(MG::SYSTEM::ID, MG::SYSTEM::COMPID, &msg, &camera);
+        UAS* myUas= static_cast<UAS*>(this->activeUAS);
+        myUas->sendMessage(msg);
+        qDebug()<<"target: "<<camera.target <<" Til: "<<camera.tilt<<" Pan: "<<camera.pan<<" zoom: "<<camera.zoom<<" moveHome"<<camera.moveHome;
+    }
+}
+
+
+void SlugsPadCameraControl::zoomIn()
+{
+    sendMessageCamera(0, 0, 0, 1);
+}
+
+void SlugsPadCameraControl::zoomOut()
+{
+    sendMessageCamera(0, 0, 0, -1);
+}
+
+void SlugsPadCameraControl::moveHome()
+{
+    sendMessageCamera(1, 0, 0, 0);
+}
+
+QPointF SlugsPadCameraControl::getDistancePixel(double lon1, double lat1, double lon2, double lat2)
 {
     double cateto_opuesto,cateto_adyacente, hipotenusa;//, distancia;
     double marcacion = 0.0;
@@ -173,29 +211,4 @@ QPointF SlugsPadCameraControl::ObtenerMarcacionDistanciaPixel(double lon1, doubl
         marcacion = 0.0;
 
     return QPointF(marcacion,hipotenusa);// distancia);
-}
-
-void SlugsPadCameraControl::keyPressEvent(QKeyEvent *event)
-{
-    switch (event->key())
-    {
-        case Qt::Key_Left:
-            emit changeMotionCamera(LEFT);
-        break;
-
-        case Qt::Key_Right:
-            emit changeMotionCamera(RIGHT);
-        break;
-
-        case Qt::Key_Down:
-            emit changeMotionCamera(DOWN);
-        break;
-
-        case Qt::Key_Up:
-            emit changeMotionCamera(UP);
-        break;
-
-        default:
-        QWidget::keyPressEvent(event);
-    }
 }

@@ -1,4 +1,4 @@
-/*===================================================================
+    /*===================================================================
 ======================================================================*/
 
 /**
@@ -1087,6 +1087,11 @@ void MainWindow::connectSlugsWidgets()
     if (controlParameterWidget && controlParameterWidget->widget()){
         connect(UASManager::instance(), SIGNAL(activeUASSet(UASInterface*)),
                 controlParameterWidget->widget(), SLOT(activeUasSet(UASInterface*)));
+    }
+
+    if (slugsCamControlWidget && slugsCamControlWidget->widget()){
+        connect(UASManager::instance(), SIGNAL(activeUASSet(UASInterface*)),
+                slugsCamControlWidget->widget(), SLOT(activeUasSet(UASInterface*)));
     }
 
     if(controlDockWidget && controlParameterWidget)

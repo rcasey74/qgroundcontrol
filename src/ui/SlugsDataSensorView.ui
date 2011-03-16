@@ -35,7 +35,7 @@
    <item row="0" column="0">
     <widget class="QTabWidget" name="SlugsSensorView_tabWidget">
      <property name="currentIndex">
-      <number>3</number>
+      <number>2</number>
      </property>
      <widget class="QWidget" name="tab_5">
       <attribute name="title">
@@ -2709,8 +2709,8 @@
       </attribute>
       <layout class="QGridLayout" name="gridLayout_25">
        <item row="0" column="0">
-        <layout class="QGridLayout" name="gridLayout_24">
-         <item row="0" column="0">
+        <layout class="QVBoxLayout" name="verticalLayout_43">
+         <item>
           <widget class="QGroupBox" name="diagnosticMessages_groupBox">
            <property name="minimumSize">
             <size>
@@ -2828,7 +2828,7 @@
               </item>
              </layout>
             </item>
-            <item row="0" column="1">
+            <item row="1" column="0">
              <layout class="QGridLayout" name="gridLayout_7">
               <item row="0" column="0">
                <layout class="QVBoxLayout" name="verticalLayout_36">
@@ -2924,7 +2924,7 @@
            </layout>
           </widget>
          </item>
-         <item row="1" column="0">
+         <item>
           <widget class="QGroupBox" name="logMessages_groupBox">
            <property name="minimumSize">
             <size>
@@ -2948,7 +2948,7 @@
            <property name="title">
             <string>Log Messages</string>
            </property>
-           <layout class="QGridLayout" name="gridLayout_27">
+           <layout class="QGridLayout" name="gridLayout_24">
             <item row="0" column="0">
              <layout class="QHBoxLayout" name="horizontalLayout_17">
               <item>
@@ -3024,7 +3024,7 @@
               </item>
              </layout>
             </item>
-            <item row="0" column="1">
+            <item row="1" column="0">
              <layout class="QHBoxLayout" name="horizontalLayout_16">
               <item>
                <layout class="QVBoxLayout" name="verticalLayout_33">
@@ -3102,7 +3102,7 @@
            </layout>
           </widget>
          </item>
-         <item row="2" column="0">
+         <item>
           <spacer name="verticalSpacer_3">
            <property name="orientation">
             <enum>Qt::Vertical</enum>
@@ -3123,11 +3123,11 @@
       <attribute name="title">
        <string>GPS</string>
       </attribute>
-      <layout class="QGridLayout" name="gridLayout_20">
+      <layout class="QGridLayout" name="gridLayout_3">
        <item row="0" column="0">
-        <layout class="QVBoxLayout" name="verticalLayout_39">
+        <layout class="QVBoxLayout" name="verticalLayout_38">
          <item>
-          <layout class="QHBoxLayout" name="horizontalLayout_18">
+          <layout class="QHBoxLayout" name="horizontalLayout_14">
            <item>
             <widget class="QGroupBox" name="gpsData_groupBox">
              <property name="title">
@@ -3177,6 +3177,76 @@
                     </property>
                     <property name="text">
                      <string>Height</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QLabel" name="label_48">
+                    <property name="font">
+                     <font>
+                      <pointsize>10</pointsize>
+                      <weight>75</weight>
+                      <bold>true</bold>
+                     </font>
+                    </property>
+                    <property name="text">
+                     <string>Date</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QLabel" name="label_47">
+                    <property name="font">
+                     <font>
+                      <pointsize>10</pointsize>
+                      <weight>75</weight>
+                      <bold>true</bold>
+                     </font>
+                    </property>
+                    <property name="text">
+                     <string>Time</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QLabel" name="label_54">
+                    <property name="font">
+                     <font>
+                      <pointsize>10</pointsize>
+                      <weight>75</weight>
+                      <bold>true</bold>
+                     </font>
+                    </property>
+                    <property name="text">
+                     <string># Sats</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QLabel" name="label_52">
+                    <property name="font">
+                     <font>
+                      <pointsize>10</pointsize>
+                      <weight>75</weight>
+                      <bold>true</bold>
+                     </font>
+                    </property>
+                    <property name="text">
+                     <string>COG</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QLabel" name="label_53">
+                    <property name="font">
+                     <font>
+                      <pointsize>10</pointsize>
+                      <weight>75</weight>
+                      <bold>true</bold>
+                     </font>
+                    </property>
+                    <property name="text">
+                     <string>SOG</string>
                     </property>
                    </widget>
                   </item>
@@ -3256,89 +3326,7 @@
                     </property>
                    </widget>
                   </item>
-                 </layout>
-                </item>
-               </layout>
-              </item>
-              <item row="1" column="0">
-               <layout class="QHBoxLayout" name="horizontalLayout_14">
-                <item>
-                 <layout class="QVBoxLayout" name="verticalLayout_38">
                   <item>
-                   <widget class="QLabel" name="label_48">
-                    <property name="font">
-                     <font>
-                      <pointsize>10</pointsize>
-                      <weight>75</weight>
-                      <bold>true</bold>
-                     </font>
-                    </property>
-                    <property name="text">
-                     <string>Date</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item>
-                   <widget class="QLabel" name="label_47">
-                    <property name="font">
-                     <font>
-                      <pointsize>10</pointsize>
-                      <weight>75</weight>
-                      <bold>true</bold>
-                     </font>
-                    </property>
-                    <property name="text">
-                     <string>Time</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item>
-                   <widget class="QLabel" name="label_54">
-                    <property name="font">
-                     <font>
-                      <pointsize>10</pointsize>
-                      <weight>75</weight>
-                      <bold>true</bold>
-                     </font>
-                    </property>
-                    <property name="text">
-                     <string># Sats</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item>
-                   <widget class="QLabel" name="label_52">
-                    <property name="font">
-                     <font>
-                      <pointsize>10</pointsize>
-                      <weight>75</weight>
-                      <bold>true</bold>
-                     </font>
-                    </property>
-                    <property name="text">
-                     <string>COG</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item>
-                   <widget class="QLabel" name="label_53">
-                    <property name="font">
-                     <font>
-                      <pointsize>10</pointsize>
-                      <weight>75</weight>
-                      <bold>true</bold>
-                     </font>
-                    </property>
-                    <property name="text">
-                     <string>SOG</string>
-                    </property>
-                   </widget>
-                  </item>
-                 </layout>
-                </item>
-                <item>
-                 <layout class="QGridLayout" name="gridLayout_3">
-                  <item row="0" column="0">
                    <widget class="QLineEdit" name="m_GpsDate">
                     <property name="minimumSize">
                      <size>
@@ -3362,7 +3350,7 @@
                     </property>
                    </widget>
                   </item>
-                  <item row="1" column="0">
+                  <item>
                    <widget class="QLineEdit" name="m_GpsTime">
                     <property name="minimumSize">
                      <size>
@@ -3386,7 +3374,7 @@
                     </property>
                    </widget>
                   </item>
-                  <item row="2" column="0">
+                  <item>
                    <widget class="QLineEdit" name="m_GpsSat">
                     <property name="minimumSize">
                      <size>
@@ -3410,7 +3398,7 @@
                     </property>
                    </widget>
                   </item>
-                  <item row="3" column="0">
+                  <item>
                    <widget class="QLineEdit" name="m_GpsCog">
                     <property name="minimumSize">
                      <size>
@@ -3434,7 +3422,7 @@
                     </property>
                    </widget>
                   </item>
-                  <item row="4" column="0">
+                  <item>
                    <widget class="QLineEdit" name="m_GpsSog">
                     <property name="minimumSize">
                      <size>
