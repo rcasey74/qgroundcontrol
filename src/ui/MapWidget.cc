@@ -115,14 +115,16 @@ void MapWidget::init()
         lastZoom = settings.value("LAST_ZOOM", lastZoom).toInt();
         settings.endGroup();
 
-        index = 0;
+        this->index = 0;
         settings.beginGroup("QGC_MAPINDEX");
         index = settings.value("MAP_INDEX", index).toInt();
         settings.endGroup();
 
+        this->homeHeight = 0;
         settings.beginGroup("QGC_HOMEPOSITION");
-        homeCoordinate.setY(settings.value("HOME_LATITUDE", homeCoordinate.y()).toDouble());
-        homeCoordinate.setX(settings.value("HOME_LONGITUDE", homeCoordinate.x()).toDouble());
+        this->homeCoordinate.setY(settings.value("HOME_LATITUDE", homeCoordinate.y()).toDouble());
+        this->homeCoordinate.setX(settings.value("HOME_LONGITUDE", homeCoordinate.x()).toDouble());
+        this->homeHeight = settings.value("HOME_HIGHT", homeHeight).toDouble();
         settings.endGroup();
 
         // SET INITIAL POSITION AND ZOOM
@@ -766,7 +768,8 @@ void MapWidget::captureGeometryEndDrag(Geometry* geom, QPointF coordinate)
             // Update homePosition
             UASManager::instance()->setHomePosition(
                                 static_cast<double>(homeCoordinate.y()),
-                                static_cast<double>(homeCoordinate.x()), 0);
+                                static_cast<double>(homeCoordinate.x()),
+                                this->homeHeight);
         }
     }
 
@@ -1168,6 +1171,7 @@ void MapWidget::hideEvent(QHideEvent* event)
         settings.beginGroup("QGC_HOMEPOSITION");
         settings.setValue("HOME_LATITUDE", homeCoordinate.y());
         settings.setValue("HOME_LONGITUDE", homeCoordinate.x());
+        settings.setValue("HOME_HIGHT", homeHeight);
         settings.endGroup();
 
         settings.sync();
@@ -1284,12 +1288,26 @@ void MapWidget::createHomePositionClick(bool click)
     {
         if(mav)
         {
+            enterHeight();
+
             UASManager::instance()->setHomePosition(
                     static_cast<double>(homeCoordinate.y()),
-                    static_cast<double>(homeCoordinate.x()), 0);
-
-
-            //qDebug()<<"Set home position "<<homeCoordinate.y()<<" "<<homeCoordinate.x();
+                    static_cast<double>(homeCoordinate.x()), this->homeHeight);
         }
+    }
+}
+
+void MapWidget::enterHeight()
+{
+    bool ok;
+    QString text = QInputDialog::getText(this, tr("Please enter height to station"),
+                                         tr("Height:"), QLineEdit::Normal,
+
+                                         QString("%1").arg(this->homeHeight), &ok);
+
+    if (ok && !text.isEmpty())
+    {
+        this->homeHeight = text.toDouble();
+
     }
 }

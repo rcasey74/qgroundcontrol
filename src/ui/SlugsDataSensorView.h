@@ -33,11 +33,17 @@ This file is part of the QGROUNDCONTROL project
 #define SLUGSDATASENSORVIEW_H
 
 #include <QWidget>
+#include <QGridLayout>
+#include <QString>
+#include <QTimer>
+#include <QLabel>
+#include <QVector>
+#include <QList>
 
 #include "UASInterface.h"
 #include "SlugsMAV.h"
 #include "mavlink.h"
-
+#include "LinechartPlot.h"
 
 namespace Ui {
     class SlugsDataSensorView;
@@ -183,30 +189,59 @@ public slots:
         * @brief Updates the gps Date Time widget - 179
    */
     void slugsGPSDateTimeChanged(int systemId,
-                                 const mavlink_gps_date_time_t& gpsDateTime);
+                                 const mavlink_gps_date_time_t&);
 
 
     void slugsRCRawChannels(int systemId,
-                            const mavlink_rc_channels_raw_t& gpsDateTime);
+                            const mavlink_rc_channels_raw_t&);
 
     void slugsRCServo(int systemId,
-                            const mavlink_servo_output_raw_t& gpsDateTime);
+                            const mavlink_servo_output_raw_t&);
 
 
+    //void valueChangedT(int a, QString b, QString c, double d, quint64 e);
+
+private slots:
+
+    void refresh();
+
+    void updateGpsDateTime();
 #endif // MAVLINK_ENABLED_SLUGS
 
 protected:
      UASInterface* activeUAS;
+     QMap<QString, int8_t> data;
+     QMap<int8_t, double>* row;
+     QGridLayout* curvesWidgetLayout;
+     QGridLayout* rawData;
+     QGridLayout* filterData;
+     QTimer* timer;
+     QMap<QString, QLabel*>* curveMeans;
+     QList<double> raw;
 
 private:
     Ui::SlugsDataSensorView *ui;
-
-
-
-
-
-
-
+    mavlink_raw_imu_t rawImu;
+    mavlink_scaled_imu_t scaledImu;
+    mavlink_rc_channels_raw_t channelsRaw;
+    mavlink_servo_output_raw_t servoOutputRaw;
+    mavlink_slugs_navigation_t slugsNavigation;
+    mavlink_sensor_bias_t sensorBias;
+    mavlink_diagnostic_t diagnostic;
+    mavlink_gps_date_time_t gpsDateTime;
+    mavlink_data_log_t dataLog;
+    double latitude;
+    double longitude;
+    double altitude;
+    double ed_x;
+    double ed_y;
+    double ed_z;
+    double ed_vx;
+    double ed_vy;
+    double ed_vz;
+    double roll;
+    double pitch;
+    double yaw;
 };
 
 #endif // SLUGSDATASENSORVIEW_H

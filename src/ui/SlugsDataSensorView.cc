@@ -16,9 +16,10 @@ SlugsDataSensorView::SlugsDataSensorView(QWidget *parent) :
 
     this->setVisible(false);
 
-
-
-
+    timer =new QTimer(this);
+    timer->setInterval(200);
+    connect(timer, SIGNAL(timeout()), this, SLOT(refresh()));
+    timer->start();
 }
 
 SlugsDataSensorView::~SlugsDataSensorView()
@@ -36,29 +37,27 @@ void SlugsDataSensorView::addUAS(UASInterface* uas)
 
     #ifdef MAVLINK_ENABLED_SLUGS
 
-        //connect standar messages
     connect(slugsMav, SIGNAL(localPositionChanged(UASInterface*,double,double,double,quint64)), this, SLOT(slugLocalPositionChanged(UASInterface*,double,double,double,quint64)));
     connect(slugsMav, SIGNAL(speedChanged(UASInterface*,double,double,double,quint64)), this, SLOT(slugSpeedLocalPositionChanged(UASInterface*,double,double,double,quint64)));
     connect(slugsMav, SIGNAL(attitudeChanged(UASInterface*,double,double,double,quint64)), this, SLOT(slugAttitudeChanged(UASInterface*,double,double,double,quint64)));
     connect(slugsMav, SIGNAL(globalPositionChanged(UASInterface*,double,double,double,quint64)), this, SLOT(slugsGlobalPositionChanged(UASInterface*,double,double,double,quint64)));
     connect(slugsMav,SIGNAL(slugsGPSCogSog(int,double,double)),this,SLOT(slugsGPSCogSog(int,double,double)));
 
-    //connect slugs especial messages
     connect(slugsMav, SIGNAL(slugsSensorBias(int,const mavlink_sensor_bias_t&)), this, SLOT(slugsSensorBiasChanged(int,const mavlink_sensor_bias_t&)));
     connect(slugsMav, SIGNAL(slugsDiagnostic(int,const mavlink_diagnostic_t&)), this, SLOT(slugsDiagnosticMessageChanged(int,const mavlink_diagnostic_t&)));
     connect(slugsMav, SIGNAL(slugsCPULoad(int,const mavlink_cpu_load_t&)), this, SLOT(slugsCpuLoadChanged(int,const mavlink_cpu_load_t&)));
 
     connect(slugsMav, SIGNAL(slugsNavegation(int,const mavlink_slugs_navigation_t&)),this,SLOT(slugsNavegationChanged(int,const mavlink_slugs_navigation_t&)));
     connect(slugsMav, SIGNAL(slugsDataLog(int,const mavlink_data_log_t&)), this, SLOT(slugsDataLogChanged(int,const mavlink_data_log_t&)));
-//    connect(slugsMav, SIGNAL(slugsPWM(int,const mavlink_pwm_commands_t&)),this,SLOT(slugsPWMChanged(int,const mavlink_pwm_commands_t&)));
-//    connect(slugsMav, SIGNAL(slugsFilteredData(int,const mavlink_filtered_data_t&)),this,SLOT(slugsFilteredDataChanged(int,const mavlink_filtered_data_t&)));
     connect(slugsMav, SIGNAL(slugsGPSDateTime(int,const mavlink_gps_date_time_t&)),this,SLOT(slugsGPSDateTimeChanged(int,const mavlink_gps_date_time_t&)));
     connect(slugsMav,SIGNAL(slugsAirData(int, const mavlink_air_data_t&)),this,SLOT(slugsAirDataChanged(int, const mavlink_air_data_t&)));
-
 
     connect(slugsMav, SIGNAL(slugsChannels(int, const mavlink_rc_channels_raw_t&)), this, SLOT(slugsRCRawChannels(int, const mavlink_rc_channels_raw_t&)));
     connect(slugsMav, SIGNAL(slugsServo(int, const mavlink_servo_output_raw_t&)), this, SLOT(slugsRCServo(int,const mavlink_servo_output_raw_t&)));
     connect(slugsMav, SIGNAL(slugsScaled(int, const mavlink_scaled_imu_t&)), this, SLOT(slugsFilteredDataChanged(int, const mavlink_scaled_imu_t&)));
+
+
+    //connect(slugsMav, SIGNAL(valueChanged(int,QString,QString,double,quint64)), this, SLOT(valueChangedT(int,QString,QString,double,quint64)));
 
     #endif // MAVLINK_ENABLED_SLUGS
         // Set this UAS as active if it is the first one
@@ -69,48 +68,122 @@ void SlugsDataSensorView::addUAS(UASInterface* uas)
     }
 }
 
-void SlugsDataSensorView::slugRawDataChanged(int uasId, const mavlink_raw_imu_t &rawData){
- Q_UNUSED(uasId);
+void SlugsDataSensorView::refresh()
+{
+    if(this->isVisible())
+    {
+        QString str;
 
- ui->m_Axr->setText(QString::number(rawData.xacc));
- ui->m_Ayr->setText(QString::number(rawData.yacc));
- ui->m_Azr->setText(QString::number(rawData.zacc));
+        ui->m_Axr->setText(str.sprintf("% 11.4f", (double)rawImu.xacc));
+        ui->m_Ayr->setText(str.sprintf("% 11.4f", (double)rawImu.yacc));
+        ui->m_Azr->setText(str.sprintf("% 11.4f", (double)rawImu.zacc));
+        ui->m_Mxr->setText(str.sprintf("% 11.4f", (double)rawImu.xmag));
+        ui->m_Myr->setText(str.sprintf("% 11.4f", (double)rawImu.ymag));
+        ui->m_Mzr->setText(str.sprintf("% 11.4f", (double)rawImu.zmag));
+        ui->m_Gxr->setText(str.sprintf("% 11.4f", (double)rawImu.xgyro));
+        ui->m_Gyr->setText(str.sprintf("% 11.4f", (double)rawImu.ygyro));
+        ui->m_Gzr->setText(str.sprintf("% 11.4f", (double)rawImu.zgyro));
 
- ui->m_Mxr->setText(QString::number(rawData.xmag));
- ui->m_Myr->setText(QString::number(rawData.ymag));
- ui->m_Mzr->setText(QString::number(rawData.zmag));
+        ui->m_Axf->setText(str.sprintf("% 11.4f", (double)scaledImu.xacc/1000.0f));
+        ui->m_Ayf->setText(str.sprintf("% 11.4f", (double)scaledImu.yacc/1000.0f));
+        ui->m_Azf->setText(str.sprintf("% 11.4f", (double)scaledImu.zacc/1000.0f));
+        ui->m_Gxf->setText(str.sprintf("% 11.4f", (double)scaledImu.xgyro/1000.0f));
+        ui->m_Gyf->setText(str.sprintf("% 11.4f", (double)scaledImu.ygyro/1000.0f));
+        ui->m_Gzf->setText(str.sprintf("% 11.4f", (double)scaledImu.zgyro/1000.0f));
+        ui->m_Mxf->setText(str.sprintf("% 11.4f", (double)scaledImu.xmag/1000.0f));
+        ui->m_Myf->setText(str.sprintf("% 11.4f", (double)scaledImu.ymag/1000.0f));
+        ui->m_Mzf->setText(str.sprintf("% 11.4f", (double)scaledImu.zmag/1000.0f));
 
- ui->m_Gxr->setText(QString::number(rawData.xgyro));
- ui->m_Gyr->setText(QString::number(rawData.ygyro));
- ui->m_Gzr->setText(QString::number(rawData.zgyro));
+        ui->tbRCThrottle->setText(str.sprintf("% 11.4f", (double)channelsRaw.chan1_raw));
+        ui->tbRCAileron->setText(str.sprintf("% 11.4f", (double)channelsRaw.chan2_raw));
+        ui->tbRCRudder->setText(str.sprintf("% 11.4f", (double)channelsRaw.chan3_raw));
+        ui->tbRCElevator->setText(str.sprintf("% 11.4f", (double)channelsRaw.chan4_raw));
 
+        ui->m_pwmThro->setText(str.sprintf("% 11.4f", (double)servoOutputRaw.servo1_raw));
+        ui->m_pwmAile->setText(str.sprintf("% 11.4f", (double)servoOutputRaw.servo2_raw));
+        ui->m_pwmRudd->setText(str.sprintf("% 11.4f", (double)servoOutputRaw.servo3_raw));
+        ui->m_pwmElev->setText(str.sprintf("% 11.4f", (double)servoOutputRaw.servo4_raw));
+
+        ui->m_pwmThroTrim->setText(str.sprintf("% 11.4f", (double)servoOutputRaw.servo5_raw));
+        ui->m_pwmAileTrim->setText(str.sprintf("% 11.4f", (double)servoOutputRaw.servo6_raw));
+        ui->m_pwmRuddTrim->setText(str.sprintf("% 11.4f", (double)servoOutputRaw.servo7_raw));
+        ui->m_pwmElevTrim->setText(str.sprintf("% 11.4f", (double)servoOutputRaw.servo8_raw));
+
+        ui->m_Um->setText(str.sprintf("% 11.4f", (double)slugsNavigation.u_m));
+        ui->m_PhiC->setText(str.sprintf("% 11.4f", (double)slugsNavigation.phi_c));
+        ui->m_PitchC->setText(str.sprintf("% 11.4f", (double)slugsNavigation.theta_c));
+        ui->m_PsidC->setText(str.sprintf("% 11.4f", (double)slugsNavigation.psiDot_c));
+        ui->m_AyBody->setText(str.sprintf("% 11.4f", (double)slugsNavigation.ay_body));
+        ui->m_TotRun->setText(str.sprintf("% 11.4f", (double)slugsNavigation.totalDist));
+        ui->m_DistToGo->setText(str.sprintf("% 11.4f", (double)slugsNavigation.dist2Go));
+        ui->m_FromWP->setText(str.sprintf("% 11.4f", (double)slugsNavigation.fromWP));
+        ui->m_ToWP->setText(str.sprintf("% 11.4f", (double)slugsNavigation.toWP));
+
+        ui->m_AxBiases->setText(str.sprintf("% 11.4f", (double)sensorBias.axBias));
+        ui->m_AyBiases->setText(str.sprintf("% 11.4f", (double)sensorBias.ayBias));
+        ui->m_AzBiases->setText(str.sprintf("% 11.4f", (double)sensorBias.azBias));
+        ui->m_GxBiases->setText(str.sprintf("% 11.4f", (double)sensorBias.gxBias));
+        ui->m_GyBiases->setText(str.sprintf("% 11.4f", (double)sensorBias.gyBias));
+        ui->m_GzBiases->setText(str.sprintf("% 11.4f", (double)sensorBias.gzBias));
+
+        ui->m_Fl1->setText(str.sprintf("% 11.4f", (double)diagnostic.diagFl1));
+        ui->m_Fl2->setText(str.sprintf("% 11.4f", (double)diagnostic.diagFl2));
+        ui->m_Fl3->setText(str.sprintf("% 11.4f", (double)diagnostic.diagFl2));
+
+        ui->m_Sh1->setText(str.sprintf("% 11.4f", (double)diagnostic.diagSh1));
+        ui->m_Sh2->setText(str.sprintf("% 11.4f", (double)diagnostic.diagSh2));
+        ui->m_Sh3->setText(str.sprintf("% 11.4f", (double)diagnostic.diagSh3));
+
+        ui->m_logFl1->setText(str.sprintf("% 11.4f", (double)dataLog.fl_1));
+        ui->m_logFl2->setText(str.sprintf("% 11.4f", (double)dataLog.fl_2));
+        ui->m_logFl3->setText(str.sprintf("% 11.4f", (double)dataLog.fl_3));
+        ui->m_logFl4->setText(str.sprintf("% 11.4f", (double)dataLog.fl_4));
+        ui->m_logFl5->setText(str.sprintf("% 11.4f", (double)dataLog.fl_5));
+        ui->m_logFl6->setText(str.sprintf("% 11.4f", (double)dataLog.fl_6));
+
+        ui->m_GpsLatitude->setText(str.sprintf("% 11.4f", latitude));
+        ui->m_GpsLongitude->setText(str.sprintf("% 11.4f", longitude));
+        ui->m_GpsHeight->setText(str.sprintf("% 11.4f", altitude));
+
+        ui->ed_x->setText(str.sprintf("% 11.4f", ed_x));
+        ui->ed_y->setText(str.sprintf("% 11.4f", ed_y));
+        ui->ed_z->setText(str.sprintf("% 11.4f", ed_z));
+
+        ui->ed_vx->setText(str.sprintf("% 11.4f", ed_vx));
+        ui->ed_vy->setText(str.sprintf("% 11.4f", ed_vy));
+        ui->ed_vz->setText(str.sprintf("% 11.4f", ed_vz));
+
+        ui->m_Roll->setText(str.sprintf("% 11.4f", roll));
+        ui->m_Pitch->setText(str.sprintf("% 11.4f", pitch));
+        ui->m_Yaw->setText(str.sprintf("% 11.4f", yaw));
+
+        updateGpsDateTime();
+    }
 }
 
+void SlugsDataSensorView::slugRawDataChanged(int uasId, const mavlink_raw_imu_t &rawData)
+{
+    Q_UNUSED(uasId);
+
+    this->rawImu = rawData;
+}
 
 void SlugsDataSensorView::slugsRCRawChannels(int systemId, const mavlink_rc_channels_raw_t &gpsDateTime)
-{Q_UNUSED(systemId);
+{
+    Q_UNUSED(systemId);
 
-    ui->tbRCThrottle->setText(QString::number(gpsDateTime.chan1_raw));
-    ui->tbRCAileron->setText(QString::number(gpsDateTime.chan2_raw));
-    ui->tbRCRudder->setText(QString::number(gpsDateTime.chan3_raw));
-    ui->tbRCElevator->setText(QString::number(gpsDateTime.chan4_raw));
+    this->channelsRaw = gpsDateTime;
 }
 
 void SlugsDataSensorView::slugsRCServo(int systemId, const mavlink_servo_output_raw_t &gpsDateTime)
-{Q_UNUSED(systemId);
+{
+    Q_UNUSED(systemId);
 
-    ui->m_pwmThro->setText(QString::number(gpsDateTime.servo1_raw));
-    ui->m_pwmAile->setText(QString::number(gpsDateTime.servo2_raw));
-    ui->m_pwmRudd->setText(QString::number(gpsDateTime.servo3_raw));
-    ui->m_pwmElev->setText(QString::number(gpsDateTime.servo4_raw));
-
-    ui->m_pwmThroTrim->setText(QString::number(gpsDateTime.servo5_raw));
-    ui->m_pwmAileTrim->setText(QString::number(gpsDateTime.servo6_raw));
-    ui->m_pwmRuddTrim->setText(QString::number(gpsDateTime.servo7_raw));
-    ui->m_pwmElevTrim->setText(QString::number(gpsDateTime.servo8_raw));
+    this->servoOutputRaw = gpsDateTime;
 }
 
-void SlugsDataSensorView::setActiveUAS(UASInterface* uas){
+void SlugsDataSensorView::setActiveUAS(UASInterface* uas)
+{
     activeUAS = uas;
     addUAS(activeUAS);
 }
@@ -125,11 +198,10 @@ void SlugsDataSensorView::slugsGlobalPositionChanged(UASInterface *uas,
  Q_UNUSED(uas);
  Q_UNUSED(time);
 
- ui->m_GpsLatitude->setText(QString::number(lat));
- ui->m_GpsLongitude->setText(QString::number(lon));
- ui->m_GpsHeight->setText(QString::number(alt));
+    this->latitude = lat;
+    this->longitude = lon;
+    this->altitude = alt;
 
- //qDebug()<<"GPS Position = "<<lat<<" - "<<lon<<" - "<<alt;
 }
 
 
@@ -141,9 +213,11 @@ void SlugsDataSensorView::slugLocalPositionChanged(UASInterface* uas,
   Q_UNUSED(uas);
   Q_UNUSED(time);
 
-  ui->ed_x->setText(QString::number(x));
-  ui->ed_y->setText(QString::number(y));
-  ui->ed_z->setText(QString::number(z));
+    this->ed_x = x;
+    this->ed_y = y;
+    this->ed_z = z;
+
+
 
 }
 
@@ -155,9 +229,10 @@ void SlugsDataSensorView::slugSpeedLocalPositionChanged(UASInterface* uas,
     Q_UNUSED( uas);
   Q_UNUSED(time);
 
-  ui->ed_vx->setText(QString::number(vx));
-  ui->ed_vy->setText(QString::number(vy));
-  ui->ed_vz->setText(QString::number(vz));
+    this->ed_vx = vx;
+    this->ed_vy = vy;
+    this->ed_vz = vz;
+
 
   //qDebug()<<"Speed Local Position = "<<vx<<" - "<<vy<<" - "<<vz;
 
@@ -173,40 +248,28 @@ void SlugsDataSensorView::slugAttitudeChanged(UASInterface* uas,
     Q_UNUSED( uas);
     Q_UNUSED(time);
 
-    ui->m_Roll->setText(QString::number(slugroll));
-    ui->m_Pitch->setText(QString::number(slugpitch));
-    ui->m_Yaw->setText(QString::number(slugyaw));
+    this->roll = slugroll;
+    this->pitch = slugpitch;
+    this->yaw = slugyaw;
+
 
     // qDebug()<<"Attitude change = "<<slugroll<<" - "<<slugpitch<<" - "<<slugyaw;
 
 }
 
 
-void SlugsDataSensorView::slugsSensorBiasChanged(int systemId,
-                                                 const mavlink_sensor_bias_t& sensorBias){
-     Q_UNUSED( systemId);
+void SlugsDataSensorView::slugsSensorBiasChanged(int systemId, const mavlink_sensor_bias_t& sensorBias)
+{
+    Q_UNUSED( systemId);
 
-  ui->m_AxBiases->setText(QString::number(sensorBias.axBias));
-  ui->m_AyBiases->setText(QString::number(sensorBias.ayBias));
-  ui->m_AzBiases->setText(QString::number(sensorBias.azBias));
-  ui->m_GxBiases->setText(QString::number(sensorBias.gxBias));
-  ui->m_GyBiases->setText(QString::number(sensorBias.gyBias));
-  ui->m_GzBiases->setText(QString::number(sensorBias.gzBias));
-
+    this->sensorBias = sensorBias;
 }
 
-
-void SlugsDataSensorView::slugsDiagnosticMessageChanged(int systemId,
-                                                        const mavlink_diagnostic_t& diagnostic){
+void SlugsDataSensorView::slugsDiagnosticMessageChanged(int systemId, const mavlink_diagnostic_t& diagnostic)
+{
     Q_UNUSED(systemId);
 
-  ui->m_Fl1->setText(QString::number(diagnostic.diagFl1));
-  ui->m_Fl2->setText(QString::number(diagnostic.diagFl2));
-  ui->m_Fl3->setText(QString::number(diagnostic.diagFl2));
-
-  ui->m_Sh1->setText(QString::number(diagnostic.diagSh1));
-  ui->m_Sh2->setText(QString::number(diagnostic.diagSh2));
-  ui->m_Sh3->setText(QString::number(diagnostic.diagSh3));
+    this->diagnostic = diagnostic;
 }
 
 
@@ -221,63 +284,36 @@ void SlugsDataSensorView::slugsCpuLoadChanged(int systemId,
 void SlugsDataSensorView::slugsNavegationChanged(int systemId,
                                                  const mavlink_slugs_navigation_t& slugsNavigation){
      Q_UNUSED(systemId);
-  ui->m_Um->setText(QString::number(slugsNavigation.u_m));
-  ui->m_PhiC->setText(QString::number(slugsNavigation.phi_c));
-  ui->m_PitchC->setText(QString::number(slugsNavigation.theta_c));
-  ui->m_PsidC->setText(QString::number(slugsNavigation.psiDot_c));
-  ui->m_AyBody->setText(QString::number(slugsNavigation.ay_body));
-  ui->m_TotRun->setText(QString::number(slugsNavigation.totalDist));
-  ui->m_DistToGo->setText(QString::number(slugsNavigation.dist2Go));
-  ui->m_FromWP->setText(QString::number(slugsNavigation.fromWP));
-  ui->m_ToWP->setText(QString::number(slugsNavigation.toWP));
+
+    this->slugsNavigation = slugsNavigation;
+
 }
 
 
 
-void SlugsDataSensorView::slugsDataLogChanged(int systemId,
-                                              const mavlink_data_log_t& dataLog){
-     Q_UNUSED(systemId);
-  ui->m_logFl1->setText(QString::number(dataLog.fl_1));
-  ui->m_logFl2->setText(QString::number(dataLog.fl_2));
-  ui->m_logFl3->setText(QString::number(dataLog.fl_3));
-  ui->m_logFl4->setText(QString::number(dataLog.fl_4));
-  ui->m_logFl5->setText(QString::number(dataLog.fl_5));
-  ui->m_logFl6->setText(QString::number(dataLog.fl_6));
-}
-
-//void SlugsDataSensorView::slugsPWMChanged(int systemId,
-//                                          const mavlink_servo_output_raw_t& pwmCommands){
-//       Q_UNUSED(systemId);
-//  ui->m_pwmThro->setText(QString::number(pwmCommands.servo1_raw));//.dt_c));
-//  ui->m_pwmAile->setText(QString::number(pwmCommands.servo2_raw));//dla_c));
-//  ui->m_pwmElev->setText(QString::number(pwmCommands.servo4_raw));//dle_c));
-//  ui->m_pwmRudd->setText(QString::number(pwmCommands.servo3_raw));//dr_c));
-
-//  ui->m_pwmThroTrim->setText(QString::number(pwmCommands.servo5_raw));//dre_c));
-//  ui->m_pwmAileTrim->setText(QString::number(pwmCommands.servo6_raw));//dlf_c));
-//  ui->m_pwmElevTrim->setText(QString::number(pwmCommands.servo8_raw));//drf_c));
-//  ui->m_pwmRuddTrim->setText(QString::number(pwmCommands.servo7_raw));//aux1));
-
-//}
-
-void SlugsDataSensorView::slugsFilteredDataChanged(int systemId,
-                                                   const mavlink_scaled_imu_t& filteredData){
-    Q_UNUSED(systemId);        
-  ui->m_Axf->setText(QString::number(filteredData.xacc/1000.0f));
-  ui->m_Ayf->setText(QString::number(filteredData.yacc/1000.0f));
-  ui->m_Azf->setText(QString::number(filteredData.zacc/1000.0f));
-  ui->m_Gxf->setText(QString::number(filteredData.xgyro/1000.0f));
-  ui->m_Gyf->setText(QString::number(filteredData.ygyro/1000.0f));
-  ui->m_Gzf->setText(QString::number(filteredData.zgyro/1000.0f));
-  ui->m_Mxf->setText(QString::number(filteredData.xmag/1000.0f));
-  ui->m_Myf->setText(QString::number(filteredData.ymag/1000.0f));
-  ui->m_Mzf->setText(QString::number(filteredData.zmag/1000.0f));
-}
-
-void SlugsDataSensorView::slugsGPSDateTimeChanged(int systemId,
-                                                  const mavlink_gps_date_time_t& gpsDateTime){
+void SlugsDataSensorView::slugsDataLogChanged(int systemId, const mavlink_data_log_t& dataLog)
+{
     Q_UNUSED(systemId);
 
+    this->dataLog = dataLog;
+
+}
+
+void SlugsDataSensorView::slugsFilteredDataChanged(int systemId, const mavlink_scaled_imu_t& filteredData){
+    Q_UNUSED(systemId);        
+
+    scaledImu = filteredData;
+}
+
+void SlugsDataSensorView::slugsGPSDateTimeChanged(int systemId, const mavlink_gps_date_time_t& gpsDateTime)
+{
+    Q_UNUSED(systemId);
+
+    this->gpsDateTime = gpsDateTime;
+}
+
+void SlugsDataSensorView::updateGpsDateTime()
+{
     QString month, day;
 
     month = QString::number(gpsDateTime.month);
@@ -306,8 +342,6 @@ void SlugsDataSensorView::slugsGPSDateTimeChanged(int systemId,
                            sec);
 
   ui->m_GpsSat->setText(QString::number(gpsDateTime.visSat));
-
-
 }
 
 /**

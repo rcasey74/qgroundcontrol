@@ -82,7 +82,8 @@ void QGCRemoteControlView::setUASId(int id)
             // The UAS exists, disconnect any existing connections
             disconnect(uas, SIGNAL(remoteControlChannelRawChanged(int,float,float)), this, SLOT(setChannel(int,float,float)));
             disconnect(uas, SIGNAL(remoteControlRSSIChanged(float)), this, SLOT(setRemoteRSSI(float)));
-            disconnect(uas, SIGNAL(radioCalibrationRawReceived(const QPointer<RadioCalibrationData>)), calibrationWindow, SLOT(receive(const QPointer<RadioCalibrationData>&)));
+            //disconnect(uas, SIGNAL(radioCalibrationRawReceived(const QPointer<RadioCalibrationData>)), calibrationWindow, SLOT(receive(const QPointer<RadioCalibrationData>&)));
+            disconnect(uas, SIGNAL(radioCalibrationReceived(const QPointer<RadioCalibrationData>)), calibrationWindow, SLOT(receive(const QPointer<RadioCalibrationData>&)));
             disconnect(uas, SIGNAL(remoteControlChannelRawChanged(int,float)), calibrationWindow, SLOT(setChannelRaw(int,float)));
             disconnect(uas, SIGNAL(remoteControlChannelScaledChanged(int,float,float)), calibrationWindow, SLOT(setChannelScaled(int,float)));
         }
