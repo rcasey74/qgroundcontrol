@@ -109,10 +109,6 @@ void SlugsMAV::receiveMessage(LinkInterface* link, mavlink_message_t message)
                 mavlink_msg_ctrl_srfc_pt_decode(&message, &mlPassthrough);
                 break;
 
-            case MAVLINK_MSG_ID_SLUGS_ACTION:     //183
-                mavlink_msg_slugs_action_decode(&message, &mlAction);
-                break;
-
             case MAVLINK_MSG_ID_SCALED_IMU:
                 mavlink_msg_scaled_imu_decode(&message, &mlScaled);
                 break;
@@ -125,31 +121,41 @@ void SlugsMAV::receiveMessage(LinkInterface* link, mavlink_message_t message)
                 mavlink_msg_rc_channels_raw_decode(&message, &mlChannels);
                 break;
 
-            switch (mlAction.actionId)
-            {
-                case SLUGS_ACTION_EEPROM:
-                if (mlAction.actionVal == SLUGS_ACTION_FAIL)
-                {
-                    emit textMessageReceived(message.sysid, message.compid, 255, "EEPROM Write Fail, Data was not saved in Memory!");
-                }
-                break;
+            case MAVLINK_MSG_ID_SLUGS_ACTION:
+                mavlink_msg_slugs_action_decode(&message, &mlAction);
 
-                case SLUGS_ACTION_PT_CHANGE:
-                if (mlAction.actionVal == SLUGS_ACTION_SUCCESS)
+              switch (mlAction.actionId)
                 {
-                    emit textMessageReceived(message.sysid, message.compid, 0, "Passthrough Succesfully Changed");
-                }
-                break;
+                    case SLUGS_ACTION_EEPROM:
+                    if (mlAction.actionVal == SLUGS_ACTION_FAIL)
+                    {
+                        emit textMessageReceived(message.sysid, message.compid, 255, "EEPROM Write Fail, Data was not saved in Memory!");
+                    }
+                    break;
 
-                case SLUGS_ACTION_MLC_CHANGE:
-                if (mlAction.actionVal == SLUGS_ACTION_SUCCESS)
-                {
-                    emit textMessageReceived(message.sysid, message.compid, 0, "Mid-level Commands Succesfully Changed");
-                }
-                break;
-            }
+                    case SLUGS_ACTION_PT_CHANGE:
+                    if (mlAction.actionVal == SLUGS_ACTION_SUCCESS)
+                    {
+                        emit textMessageReceived(message.sysid, message.compid, 0, "Passthrough Succesfully Changed");
+                    }
+                    break;
 
-      //break;
+                    case SLUGS_ACTION_MLC_CHANGE:
+                    if (mlAction.actionVal == SLUGS_ACTION_SUCCESS)
+                    {
+                        emit textMessageReceived(message.sysid, message.compid, 0, "Mid-level Commands Succesfully Changed");
+                    }
+                    break;
+
+                    case SLUGS_ACTION_SPI_TO_SENSOR:
+                    if (mlAction.actionVal == SLUGS_ACTION_SUCCESS)
+                    {
+                        emit textMessageReceived(message.sysid, message.compid, 0, "Sensor DSC Received Message");
+                    }
+                    break;
+                } // switch
+
+            break;
 
             default:
             //        qDebug() << "\nSLUGS RECEIVED MESSAGE WITH ID" << message.msgid;
