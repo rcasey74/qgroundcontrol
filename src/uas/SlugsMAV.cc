@@ -9,11 +9,10 @@ SlugsMAV::SlugsMAV(MAVLinkProtocol* mavlink, int id) :
     widgetTimer->setInterval(SLUGS_UPDATE_RATE);
 
     connect (widgetTimer, SIGNAL(timeout()), this, SLOT(emitSignals()));
-    widgetTimer->start();
+    //widgetTimer->start();
     memset(&mlRawImuData ,0, sizeof(mavlink_raw_imu_t));// clear all the state structures
 
     #ifdef MAVLINK_ENABLED_SLUGS
-
 
         memset(&mlGpsData, 0, sizeof(mavlink_gps_raw_t));
         memset(&mlCpuLoadData, 0, sizeof(mavlink_cpu_load_t));
@@ -58,6 +57,7 @@ void SlugsMAV::receiveMessage(LinkInterface* link, mavlink_message_t message)
             {
             case MAVLINK_MSG_ID_RAW_IMU:
                 mavlink_msg_raw_imu_decode(&message, &mlRawImuData);
+                emit slugsRawImu(uasId, mlRawImuData);
                 break;
 
             case MAVLINK_MSG_ID_BOOT:
@@ -67,38 +67,52 @@ void SlugsMAV::receiveMessage(LinkInterface* link, mavlink_message_t message)
 
             case MAVLINK_MSG_ID_ATTITUDE:
                 mavlink_msg_attitude_decode(&message, &mlAttitude);
+                emit slugsAttitude(uasId, mlAttitude);
+                emit attitudeChanged(this, mlAttitude.roll, mlAttitude.pitch, mlAttitude.yaw, 0.0);
                 break;
 
             case MAVLINK_MSG_ID_GPS_RAW:
                 mavlink_msg_gps_raw_decode(&message, &mlGpsData);
+                emit globalPositionChanged(this, mlGpsData.lon, mlGpsData.lat, mlGpsData.alt, 0.0);
+                emit slugsGPSCogSog(uasId,mlGpsData.hdg, mlGpsData.v);
                 break;
 
             case MAVLINK_MSG_ID_CPU_LOAD:       //170
                 mavlink_msg_cpu_load_decode(&message,&mlCpuLoadData);
+                emit slugsCPULoad(uasId, mlCpuLoadData);
+
                 break;
 
             case MAVLINK_MSG_ID_AIR_DATA:       //171
                 mavlink_msg_air_data_decode(&message,&mlAirData);
+                emit slugsAirData(uasId, mlAirData);
+
                 break;
 
             case MAVLINK_MSG_ID_SENSOR_BIAS:    //172
                 mavlink_msg_sensor_bias_decode(&message,&mlSensorBiasData);
+                emit slugsSensorBias(uasId,mlSensorBiasData);
                 break;
 
             case MAVLINK_MSG_ID_DIAGNOSTIC:     //173
                 mavlink_msg_diagnostic_decode(&message,&mlDiagnosticData);
+                emit slugsDiagnostic(uasId,mlDiagnosticData);
                 break;
 
             case MAVLINK_MSG_ID_SLUGS_NAVIGATION://176
                 mavlink_msg_slugs_navigation_decode(&message,&mlNavigation);
+                emit slugsNavegation(uasId, mlNavigation);
+
                 break;
 
             case MAVLINK_MSG_ID_DATA_LOG:       //177
                 mavlink_msg_data_log_decode(&message,&mlDataLog);
+                emit slugsDataLog(uasId, mlDataLog);
                 break;
 
             case MAVLINK_MSG_ID_GPS_DATE_TIME:    //179
                 mavlink_msg_gps_date_time_decode(&message,&mlGpsDateTime);
+                emit slugsGPSDateTime(uasId, mlGpsDateTime);
                 break;
 
             case MAVLINK_MSG_ID_MID_LVL_CMDS:     //180
@@ -115,14 +129,19 @@ void SlugsMAV::receiveMessage(LinkInterface* link, mavlink_message_t message)
 
             case MAVLINK_MSG_ID_SCALED_IMU:
                 mavlink_msg_scaled_imu_decode(&message, &mlScaled);
+                emit slugsScaled(uasId, mlScaled);
                 break;
 
             case MAVLINK_MSG_ID_SERVO_OUTPUT_RAW:
                 mavlink_msg_servo_output_raw_decode(&message, &mlServo);
+                emit slugsServo(uasId, mlServo);
+
                 break;
 
             case MAVLINK_MSG_ID_RC_CHANNELS_RAW:
                 mavlink_msg_rc_channels_raw_decode(&message, &mlChannels);
+                emit slugsChannels(uasId, mlChannels);
+
                 break;
 
 
@@ -166,27 +185,27 @@ void SlugsMAV::receiveMessage(LinkInterface* link, mavlink_message_t message)
 void SlugsMAV::emitSignals (void)
 {
     #ifdef MAVLINK_ENABLED_SLUGS
-  switch(updateRoundRobin){
-    case 1:
-      emit slugsCPULoad(uasId, mlCpuLoadData);
-      emit slugsSensorBias(uasId,mlSensorBiasData);
-    break;
 
-    case 2:
-      emit slugsAirData(uasId, mlAirData);
-      emit slugsDiagnostic(uasId,mlDiagnosticData);
+    switch(updateRoundRobin)
+    {
+        case 1:
+            emit slugsCPULoad(uasId, mlCpuLoadData);
+            emit slugsSensorBias(uasId,mlSensorBiasData);
+        break;
 
-    break;
+        case 2:
+            emit slugsAirData(uasId, mlAirData);
+            emit slugsDiagnostic(uasId,mlDiagnosticData);
+        break;
 
-    case 3:
-      emit slugsNavegation(uasId, mlNavigation);
-      emit slugsDataLog(uasId, mlDataLog);
-    break;
+        case 3:
+            emit slugsNavegation(uasId, mlNavigation);
+            emit slugsDataLog(uasId, mlDataLog);
+        break;
 
-    case 4:
-      emit slugsGPSDateTime(uasId, mlGpsDateTime);
-
-    break;
+        case 4:
+            emit slugsGPSDateTime(uasId, mlGpsDateTime);
+        break;
 
     case 5:
       emit slugsActionAck(uasId,mlActionAck);
@@ -219,22 +238,11 @@ void SlugsMAV::emitSignals (void)
 }
 
 #ifdef MAVLINK_ENABLED_SLUGS
-void SlugsMAV::emitGpsSignals (void){
+void SlugsMAV::emitGpsSignals (void)
+{
+    emit globalPositionChanged(this, mlGpsData.lon, mlGpsData.lat, mlGpsData.alt, 0.0);
 
-   // qDebug()<<"After Emit GPS Signal"<<mlGpsData.fix_type;
-
-
-    //ToDo Uncomment if. it was comment only to test
-
- // if (mlGpsData.fix_type > 0){
-    emit globalPositionChanged(this,
-                               mlGpsData.lon,
-                               mlGpsData.lat,
-                               mlGpsData.alt,
-                               0.0);
-
-     emit slugsGPSCogSog(uasId,mlGpsData.hdg, mlGpsData.v);
-
+    emit slugsGPSCogSog(uasId,mlGpsData.hdg, mlGpsData.v);
 }
 
 

@@ -165,6 +165,7 @@ protected:
     void createHomePosition(const QPointF coordinate);
     void createHomePositionClick(bool click);
     void loadSettingsMap(int8_t index);
+    void enterHeight();
 
   signals:
     void waypointCreated(Waypoint* wp);
@@ -180,6 +181,8 @@ private:
     int wpExists(const QPointF coordinate);
     bool waypointIsDrag;
     QPointF homeCoordinate;
+    double homeHeight;
+
     int8_t index;
 };
 
