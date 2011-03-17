@@ -9,7 +9,11 @@ QGCUASParamManager::QGCUASParamManager(UASInterface* uas, QWidget *parent) :
     transmissionTimeout(0),
     retransmissionTimeout(350),
     rewriteTimeout(500),
+#ifdef MAVLINK_ENABLED_SLUGS
+    retransmissionBurstRequestSize(1)
+#else
     retransmissionBurstRequestSize(2)
+#endif
 {
     uas->setParamManager(this);
 }
