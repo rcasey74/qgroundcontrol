@@ -763,7 +763,7 @@ void UAS::receiveMessage(LinkInterface* link, mavlink_message_t message)
                 emit remoteControlChannelRawChanged(7, channels.chan8_raw);
 
                 #ifdef MAVLINK_ENABLED_SLUGS
-                    emit thrustChanged(this, (channels.chan1_raw*100.0)/2000);
+                    emit thrustChanged(this, ((channels.chan1_raw-1000)*0.1));
                 #endif
             }
             break;

@@ -576,7 +576,7 @@ void UASView::refresh()
         m_ui->speedLabel->setText(speed.arg(totalSpeed, 4, 'f', 1, '0'));
 
         // Thrust
-        m_ui->thrustBar->setValue(thrust * 100);
+        //m_ui->thrustBar->setValue(thrust * 100);
 
         if(this->timeRemaining > 1 && this->timeRemaining < QGC::MAX_FLIGHT_TIME)
         {

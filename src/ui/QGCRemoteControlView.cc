@@ -84,6 +84,7 @@ void QGCRemoteControlView::setUASId(int id)
             disconnect(uas, SIGNAL(remoteControlRSSIChanged(float)), this, SLOT(setRemoteRSSI(float)));
             //disconnect(uas, SIGNAL(radioCalibrationRawReceived(const QPointer<RadioCalibrationData>)), calibrationWindow, SLOT(receive(const QPointer<RadioCalibrationData>&)));
             disconnect(uas, SIGNAL(radioCalibrationReceived(const QPointer<RadioCalibrationData>)), calibrationWindow, SLOT(receive(const QPointer<RadioCalibrationData>&)));
+
             disconnect(uas, SIGNAL(remoteControlChannelRawChanged(int,float)), calibrationWindow, SLOT(setChannelRaw(int,float)));
             disconnect(uas, SIGNAL(remoteControlChannelScaledChanged(int,float,float)), calibrationWindow, SLOT(setChannelScaled(int,float)));
         }
@@ -164,8 +165,15 @@ void QGCRemoteControlView::appendChannelWidget(int channelId)
     layout->addWidget(raw);
     // Append progress bar
     QProgressBar* normalized = new QProgressBar(this);
-    normalized->setMinimum(-100);
-    normalized->setMaximum(100);
+
+    #ifdef MAVLINK_ENABLED_SLUGS
+        normalized->setMinimum(0);
+        normalized->setMaximum(100);
+    #else
+        normalized->setMinimum(-100);
+        normalized->setMaximum(100);
+    #endif
+
     normalized->setFormat("%v%");
     progressBars.append(normalized);
     layout->addWidget(normalized);
@@ -188,8 +196,16 @@ void QGCRemoteControlView::redraw()
             rawLabels.at(i)->setText(QString("%1 us").arg(raw.at(i), 4, 10, QChar('0')));
             //int vv = normalized.at(i)*100.0f;
             //progressBars.at(i)->setValue(vv);
-            int vv = raw.at(i)*1.0f;
-            progressBars.at(i)->setValue((int)((vv*100)/2000));
+
+            #ifdef MAVLINK_ENABLED_SLUGS
+                int vv = raw.at(i)*1.0f;
+                progressBars.at(i)->setValue((int)((vv-1000)*0.1));
+            #else
+                int vv = raw.at(i)*1.0f;
+                progressBars.at(i)->setValue((int)((vv*100)/2000));
+            #endif
+
+
         }
         // Update RSSI
         if(rssi>0)
